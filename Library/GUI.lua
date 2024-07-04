@@ -20,8 +20,13 @@ local function saveConfig()
 end
 
 local function loadConfig()
-	local decrypt = game:GetService("HttpService"):JSONDecode(readfile("Polaris/Config/"..game.PlaceId))
-	config = decrypt
+	local decrypt = nil
+	if isfile("Polaris/Config/"..game.PlaceId) then
+		decrypt = game:GetService("HttpService"):JSONDecode(readfile("Polaris/Config/"..game.PlaceId))
+	end
+	if decrypt ~= nil then
+		config = decrypt
+	end
 end
 
 if not isfile("Polaris") then
@@ -32,9 +37,7 @@ if not isfile("Polaris") then
 end
 
 task.wait(0.001)
-print("error")
 loadConfig()
-print("i hate this game")
 task.wait(0.001)
 
 local lplr = Players.LocalPlayer
