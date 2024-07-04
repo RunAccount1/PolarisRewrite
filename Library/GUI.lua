@@ -32,7 +32,9 @@ if not isfile("Polaris") then
 end
 
 task.wait(0.001)
+print("error")
 loadConfig()
+print("i hate this game")
 task.wait(0.001)
 
 local lplr = Players.LocalPlayer
