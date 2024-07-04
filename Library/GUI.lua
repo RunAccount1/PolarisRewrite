@@ -4,6 +4,37 @@ local TweenService = game:GetService("TweenService")
 local TextService = game:GetService("TextService")
 local UserInputService = game:GetService("UserInputService")
 
+local config = {
+	Buttons = {},
+	Toggles = {},
+	Options = {},
+	Keybinds = {}
+}
+
+local function saveConfig()
+	local encrypt = game:GetService("HttpService"):JSONEncode(config)
+	if isfile("Polaris/Config/"..game.PlaceId) then
+		delfile("Polaris/Config/"..game.PlaceId)
+	end
+	writefile("Polaris/Config/"..game.PlaceId,encrypt)
+end
+
+local function loadConfig()
+	local decrypt = game:GetService("HttpService"):JSONDecode(readfile("Polaris/Config/"..game.PlaceId))
+	config = decrypt
+end
+
+if not isfile("Polaris") then
+	makefolder("Polaris")
+	makefolder("Polaris/Config")
+	makefolder("Polaris/Librarys")
+	saveConfig()
+end
+
+task.wait(0.001)
+loadConfig()
+task.wait(0.001)
+
 local lplr = Players.LocalPlayer
 shared.GuiLibrary = {}
 
@@ -146,6 +177,18 @@ function shared.GuiLibrary:CreateWindowInstance(tab)
 		CreateModuleButton = function(tab2)
 			buttonIndex += 1
 			totalButtons += 1
+			
+			if config.Buttons[tab2.Name] == nil then
+				config.Buttons[tab2.Name] = {
+					Enabled = false,
+				}
+			else
+				saveConfig()
+			end
+
+			if config.Keybinds[tab2.Name] == nil then
+				config.Keybinds[tab2.Name] = "Unknown"
+			end
 
 			local KeyBind = "None"
 			local hoverText = tab2.HoverText or ""
@@ -213,6 +256,7 @@ function shared.GuiLibrary:CreateWindowInstance(tab)
 
 				task.delay(0.2,function()
 					keybind.Text = "KeyBind: ".. curkeybind:upper()
+					config.Keybinds[tab2.Name] = curkeybind:upper()
 				end)
 			end)
 
@@ -254,6 +298,9 @@ function shared.GuiLibrary:CreateWindowInstance(tab)
 						end
 					end
 					tab2.Function(state)
+					
+					config.Buttons[tab2.Name].Enabled = btnTab.Enabled
+					saveConfig()
 				end,
 				ToggleDropdownState = function()
 					for i,v in pairs(moduleFrame:GetChildren()) do
@@ -274,6 +321,10 @@ function shared.GuiLibrary:CreateWindowInstance(tab)
 				CreateToggleButton = function(tab3)
 					local returnTable = {}
 					returnTable.Enabled = false
+					
+					if config.Toggles[tab3.Name.."_"..tab2.Name] == nil then 
+						config.Toggles[tab3.Name.."_"..tab2.Name] = {Enabled = false}
+					end
 
 					local newname = Instance.new("TextLabel", dropdown)
 					newname.Size = UDim2.fromScale(1,0.1)
@@ -312,6 +363,9 @@ function shared.GuiLibrary:CreateWindowInstance(tab)
 								tab3.Function(returnTable.Enabled)
 							end)
 						end
+						
+						config.Toggles[tab3.Name.."_"..tab2.Name].Enabled = returnTable.Enabled
+						saveConfig()
 					end
 
 					newbutton.MouseButton1Down:Connect(function()
@@ -322,6 +376,10 @@ function shared.GuiLibrary:CreateWindowInstance(tab)
 				end,
 				CreatePickerInstance = function(tab4)
 					local returnTable
+					
+					if config.Options[tab4.Name.."_"..tab2.Name] == nil then
+						config.Options[tab4.Name.."_"..tab2.Name] = {Option = tab4.Options[1]}
+					end
 
 					local newtextlabel = Instance.new("TextLabel", dropdown)
 					newtextlabel.Size = UDim2.fromScale(1,0.1)
@@ -360,6 +418,9 @@ function shared.GuiLibrary:CreateWindowInstance(tab)
 								index -= 1
 							end
 							returnTable.Option = tab4.Options[index]
+							
+							config.Options[tab4.Name.."_"..tab2.Name].Option = v.Options[index]
+							saveConfig()
 						end,
 					}
 
@@ -387,7 +448,7 @@ function shared.GuiLibrary:CreateWindowInstance(tab)
 
 			game.UserInputService.InputBegan:Connect(function(KEY, GPE)
 				if GPE then return end
-				if KeyBind == (nil or "None") then return end
+				if KeyBind == (nil or "Unknown") then return end
 				if KEY.KeyCode == KeyBind then
 					btnTab.ToggleButton()
 				end
