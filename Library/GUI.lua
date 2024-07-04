@@ -38,7 +38,7 @@ loadConfig = function()
 end
 
 task.delay(0.1, function()
-	loadConfig()
+	--loadConfig()
 	task.wait(0.01)
 end)
 
