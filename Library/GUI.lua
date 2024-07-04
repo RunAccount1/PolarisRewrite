@@ -7,41 +7,6 @@ local UserInputService = game:GetService("UserInputService")
 local lplr = Players.LocalPlayer
 shared.GuiLibrary = {}
 
-local pathing = "Polaris/"
-
-if not isfile("Polaris") then
-	makefolder("Polaris")
-	makefolder("Polaris/Librarys")
-	makefolder("Polaris/Config")
-end
-
-local Config = {
-	Buttons = {},
-	Toggles = {},
-	Pickers = {},
-	Textboxes = {},
-	Keybinds = {},
-}
-
-saveConfig = function()
-	local jsonthing = game:GetService("HttpService"):JSONEncode(Config)
-	if isfile("Polaris/Config/"..game.PlaceId) then
-		delfile("Polaris/Config/"..game.PlaceId)
-	end
-	writefile("Polaris/Config/"..game.PlaceId,jsonthing)
-end
-
-loadConfig = function()
-	local config = readfile("Polaris/Config/"..game.PlaceId)
-	local jsonthing = game:GetService("HttpService"):JSONDecode(config)
-	Config = jsonthing
-end
-
-task.delay(0.1, function()
-	--loadConfig()
-	task.wait(0.01)
-end)
-
 local themes = {
 	CandyCane = {
 		Main = Color3.fromRGB(230, 0, 4),
@@ -247,7 +212,6 @@ function shared.GuiLibrary:CreateWindowInstance(tab)
 				KeyBind = Enum.KeyCode[curkeybind:upper()]
 
 				task.delay(0.2,function()
-					Config.Keybinds[tab2.Name] = KeyBind
 					keybind.Text = "KeyBind: ".. curkeybind:upper()
 				end)
 			end)
@@ -310,7 +274,7 @@ function shared.GuiLibrary:CreateWindowInstance(tab)
 				CreateToggleButton = function(tab3)
 					local returnTable = {}
 					returnTable.Enabled = false
-					
+
 					local newname = Instance.new("TextLabel", dropdown)
 					newname.Size = UDim2.fromScale(1,0.1)
 					newname.BorderSizePixel = 0
@@ -376,6 +340,7 @@ function shared.GuiLibrary:CreateWindowInstance(tab)
 					newbutton.Text = tab4.Options[1].." "
 					newbutton.TextColor3 = Color3.fromRGB(150,150,150)
 
+
 					local index = 1
 					returnTable = {
 						Option = tab4.Options[index],
@@ -394,6 +359,7 @@ function shared.GuiLibrary:CreateWindowInstance(tab)
 							if v == 'Backwards' then
 								index -= 1
 							end
+							returnTable.Option = tab4.Options[index]
 						end,
 					}
 
