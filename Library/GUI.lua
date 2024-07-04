@@ -19,6 +19,10 @@ local function saveConfig()
 	writefile("Polaris/Config/"..game.PlaceId,encrypt)
 end
 
+if not isfile("Polaris/Config/"..game.PlaceId) then
+	saveConfig()
+end
+
 local function loadConfig()
 	local decrypt = nil
 	if isfile("Polaris/Config/"..game.PlaceId) then
